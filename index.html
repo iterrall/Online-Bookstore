@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .search-container {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .search-container input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Customer Orders</h1>
+<div class="search-container">
+    <label for="search-customer-orders">Search:</label>
+    <input type="text" id="search-customer-orders" placeholder="Search customer orders...">
+</div>
+<table>
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Customer Name</th>
+            <th>Order Date</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody id="customer-orders">
+        <!-- Data will be dynamically inserted here -->
+    </tbody>
+</table>
+
+<h1>Vendor Orders</h1>
+<div class="search-container">
+    <label for="search-vendor-orders">Search:</label>
+    <input type="text" id="search-vendor-orders" placeholder="Search vendor orders...">
+</div>
+<table>
+    <thead>
+        <tr>
+            <th>Vendor Order ID</th>
+            <th>Company Name</th>
+            <th>Book Name</th>
+            <th>Order Date</th>
+            <th>Quantity</th>
+            <th>Total Cost</th>
+            <th>Order Status</th>
+        </tr>
+    </thead>
+    <tbody id="vendor-orders">
+        <!-- Data will be dynamically inserted here -->
+    </tbody>
+</table>
+
+<script>
+    // Filter function for tables
+    function filterTable(inputId, tableBodyId) {
+        const input = document.getElementById(inputId);
+        const filter = input.value.toLowerCase();
+        const tableBody = document.getElementById(tableBodyId);
+        const rows = tableBody.getElementsByTagName('tr');
+
+        Array.from(rows).forEach(row => {
+            const cells = row.getElementsByTagName('td');
+            const rowText = Array.from(cells).map(cell => cell.textContent.toLowerCase()).join(' ');
+            row.style.display = rowText.includes(filter) ? '' : 'none';
+        });
+    }
+
+    // Add event listeners for search inputs
+    document.getElementById('search-customer-orders').addEventListener('input', () => {
+        filterTable('search-customer-orders', 'customer-orders');
+    });
+
+    document.getElementById('search-vendor-orders').addEventListener('input', () => {
+        filterTable('search-vendor-orders', 'vendor-orders');
+    });
+
+    // Fetch and display customer orders
+    fetch('/api/customer-orders')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('customer-orders');
+            tableBody.innerHTML = ''; // Clear existing rows
+            data.forEach(order => {
+                const row = `
+                    <tr>
+                        <td>${order.OrderID}</td>
+                        <td>${order.UserName}</td>
+                        <td>${order.OrderDate}</td>
+                        <td>${order.TotalAmount}</td>
+                        <td>${order.Status}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        });
+
+    // Fetch and display vendor orders
+    fetch('/api/vendor-orders')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('vendor-orders');
+            tableBody.innerHTML = ''; // Clear existing rows
+            data.forEach(order => {
+                const row = `
+                    <tr>
+                        <td>${order.VendorOrderID}</td>
+                        <td>${order.CompanyName}</td>
+                        <td>${order.BookName}</td>
+                        <td>${order.OrderDate}</td>
+                        <td>${order.Quantity}</td>
+                        <td>${order.TotalCost}</td>
+                        <td>${order.OrderStatus}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        });
+</script>
+
+</body>
+</html>
